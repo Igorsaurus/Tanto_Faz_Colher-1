@@ -36,10 +36,10 @@ public class ClimbLadder : MonoBehaviour
         if(hitInfo.collider != null)
         {
             //Debug.DrawRay(hitInfo.centroid, hitInfo.direction, Color blue);
-            if (Input.GetKeyDown(KeyCode.W))
+            if (Input.GetButtonDown("Vertical"))
             {
                 isClimbing = true;
-            }else if(Input.GetKeyDown(KeyCode.A)|| Input.GetKeyDown(KeyCode.D))
+            }else if(Input.GetButton("Horizontal"))
             {
                 isClimbing = false;
             }

@@ -29,23 +29,33 @@ public class PullBox : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (Input.GetKey(KeyCode.RightControl))
+        if (Input.GetButton("Telecinesia"))
         {
             if (range)
-            {
+            { 
                 srCaixa.color = new Color(255, 120, 64);
                 rbCaixa.AddForce(horizontalMove * telecinese, ForceMode2D.Force);
                 if (gameObject.CompareTag("caixaLeve"))
                 {
+                    rbCaixa.AddForce(Vector2.up* 2, ForceMode2D.Impulse);
                     if (Input.GetKey(KeyCode.UpArrow))
                         rbCaixa.AddForce(Vector3.up * telecinese, ForceMode2D.Force);
                 }
                 Debug.Log("PIPOCA");
+                if (Input.GetButtonDown("interage"))
+                {
+                    rbCaixa.isKinematic = true;
+                    rbCaixa.velocity *= 0;
+                }
                
             }
         }
-        
-        
+        if (Input.GetButtonUp("interage"))
+        {
+            rbCaixa.isKinematic = false;
+        }
+
+
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -71,6 +81,7 @@ public class PullBox : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         range = false;
-       // srCaixa.color = new Color(255, 255, 255);for na posição i é igaul a null
+        rbCaixa.isKinematic = false;
+        // srCaixa.color = new Color(255, 255, 255);for na posição i é igual a null
     }
 }
