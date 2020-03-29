@@ -42,7 +42,6 @@ public class PlayerMovement : MonoBehaviour
     public BoolEvent OnCrouchEvent;
     private bool isCrouching = false;
 
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();  //makes reference to the rb component in the editor
@@ -71,7 +70,6 @@ public class PlayerMovement : MonoBehaviour
         
         if (!Input.GetButton("Telecinesia"))
         {
-            rb.isKinematic = false;
             rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
             animator.SetFloat("Speed", Mathf.Abs(moveInput));
             
@@ -114,7 +112,6 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (Input.GetButton("Telecinesia") && isGrounded)
         {
-            rb.isKinematic = true;
             rb.velocity = Vector2.zero;
             animator.SetFloat("Speed", 0);
         }

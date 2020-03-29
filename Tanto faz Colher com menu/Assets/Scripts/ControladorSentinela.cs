@@ -22,6 +22,7 @@ public class ControladorSentinela : MonoBehaviour
     
     private bool playerInRange;   //se colidir com o trigger do player, fica true
     RaycastHit2D hitInfo;
+    public GameObject explosao;
 
     // Start is called before the first frame update
     void Start()
@@ -38,25 +39,25 @@ public class ControladorSentinela : MonoBehaviour
         //vai checar se ele não vai cair da borda da plataforma e virar ele quando ele chegar nela
         hitInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, comprimentoRay);
         print(hitInfo.distance);
-        distPlataforma = hitInfo.distance;
-        if(distPlataforma < 2)
-        {
-            rbRobo.AddForce(Vector2.up * 5, ForceMode2D.Force);
-        } 
-        if (distPlataforma > 2)
-        {
-            rbRobo.AddForce(Vector2.down * 5, ForceMode2D.Force);
-        }
-        if(distPlataforma == 2)
-        {
-            rbRobo.isKinematic = true;
-        }else
-        {
-            rbRobo.isKinematic = false;
-        }
-       
+        /* distPlataforma = hitInfo.distance;
+         if(distPlataforma < 2)
+         {
+             rbRobo.AddForce(Vector2.up * 5, ForceMode2D.Force);
+         } 
+         if (distPlataforma > 2)
+         {
+             rbRobo.AddForce(Vector2.down * 5, ForceMode2D.Force);
+         }
+         if(distPlataforma == 2)
+         {
+             rbRobo.isKinematic = true;
+         }else
+         {
+             rbRobo.isKinematic = false;
+         }
+        */
 
-        if(hitInfo.collider == null)
+        if (hitInfo.collider == null)
         {
             if(isFacingRight == true)
             {
@@ -91,7 +92,8 @@ public class ControladorSentinela : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Flip();
-
+        Destroy(gameObject);
+        Instantiate(explosao ,rbRobo.position, transform.rotation);
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
