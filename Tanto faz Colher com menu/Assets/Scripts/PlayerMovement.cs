@@ -6,6 +6,8 @@ using UnityEngine.Events;
 public class PlayerMovement : MonoBehaviour
 {
     public Animator animator;
+    
+    public BoxCollider2D triggerDist;
     //variables
     public Rigidbody2D rb;
     //basic movement vars
@@ -26,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform feetPos;
     [SerializeField] private Transform ceilingCheck;
     const float groundCheckRadius = .5f;    //radius of the overlap circle that checks if the player is on ground
-    const float ceilingCheckRadius = .4f;   //radius of the overlap circle that checks if the player can stand up
+    const float ceilingCheckRadius = .5f;   //radius of the overlap circle that checks if the player can stand up
     [SerializeField] private LayerMask whatIsGround;
 
     [Header("Events")]
@@ -40,77 +42,95 @@ public class PlayerMovement : MonoBehaviour
     public BoolEvent OnCrouchEvent;
     private bool isCrouching = false;
 
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();  //makes reference to the rb component in the editor
+        triggerDist = GetComponent<BoxCollider2D>();
     }
     private void Update()
     {
         moveInput = Input.GetAxisRaw("Horizontal");   //gets and store the input value
         isGrounded = Physics2D.OverlapCircle(feetPos.position, groundCheckRadius, whatIsGround); //checks if the player is on ground
-        
 
-        
-        if (isGrounded == true && Input.GetKeyDown(KeyCode.Space) && isCrouching == false)
+        if (isGrounded == true && Input.GetButtonDown("Jump") && isCrouching == false && !Input.GetButton("Telecinesia"))
         {
 
             rb.velocity = Vector2.up * jumpForce;
-            animator.SetBool("IsJumping", true);
             isGrounded = false;
         }
-        if (isGrounded && rb.velocity.y ==0)
+        if(isGrounded == false)
         {
-            OnLandEvent.Invoke();
+            animator.SetBool("IsJumping", true);
         }
+
     }
 
     private void FixedUpdate()
     {
-          
-        rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
-        animator.SetFloat("Speed", Mathf.Abs(moveInput));
-
-        if (Input.GetKey(KeyCode.LeftShift) && isGrounded)
+        
+        if (!Input.GetButton("Telecinesia"))
         {
-
-            isCrouching = true;
-        }
-        else
-        {
-            isCrouching = false;
-        }
-        if (isCrouching)
-        {
-
-            rb.velocity *= crouchSpeed;
-            if (crouchDisableCollider != null)
+            rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
+            animator.SetFloat("Speed", Mathf.Abs(moveInput));
+            
+            if (isGrounded) //&& rb.velocity.y == 0)
             {
-                crouchDisableCollider.enabled = false;
+                OnLandEvent.Invoke();
+                animator.SetBool("IsJumping", false);
             }
-        }
-        else if(Physics2D.OverlapCircle(ceilingCheck.position, ceilingCheckRadius, whatIsGround))
-        {
-            Debug.Log("BATATA");
-            isCrouching = true;
-        }else
-        {
-            if (crouchDisableCollider != null)
+            if (Input.GetButton("Crouch") && isGrounded)
             {
-                crouchDisableCollider.enabled = true;
+
+                isCrouching = true;
             }
+            else
+            {
+                isCrouching = false;
+            }
+            if (isCrouching)
+            {
+
+                rb.velocity *= crouchSpeed;
+                if (crouchDisableCollider != null)
+                {
+                    crouchDisableCollider.enabled = false;
+                }
+            }
+            else if (Physics2D.OverlapCircle(ceilingCheck.position, ceilingCheckRadius, whatIsGround))
+            {
+                Debug.Log("BATATA");
+                isCrouching = true;
+            }
+            else
+            {
+                if (crouchDisableCollider != null)
+                {
+                    crouchDisableCollider.enabled = true;
+                }
+            }
+            Flip(); //just flips the player depending on his direction
+        }
+        else if (Input.GetButton("Telecinesia") && isGrounded)
+        {
+            rb.velocity = Vector2.zero;
+            animator.SetFloat("Speed", 0);
         }
 
-     
-        
-        
-        Flip(); //just flips the player depending on his direction
+
+
 
         
 
+        
 
 
 
+
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(triggerDist.bounds.center, triggerDist.bounds.size);
     }
     void Flip()
     {
