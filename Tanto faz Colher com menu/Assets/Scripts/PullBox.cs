@@ -13,12 +13,18 @@ public class PullBox : MonoBehaviour
     public float horizontalInput;
     private Vector2 horizontalMove;
     private bool range;
+    bool telecinesia;
+    bool interage;
+    bool flutuar;
 
     // Start is called before the first frame update
     void Start()
     {
         //playerSpeed = playerMovementScript.rb.velocity.x;
         range = false;
+        telecinesia = false;
+        interage = false;
+        flutuar = false;
     }
 
     // Update is called once per frame
@@ -26,13 +32,19 @@ public class PullBox : MonoBehaviour
     {
         horizontalInput = Input.GetAxisRaw("HorizontalArrow");
         horizontalMove = new Vector2(horizontalInput, 0);
+        if(Input.GetButton("Telecinesia")) telecinesia = true;
+        if (Input.GetButtonDown("interage")) interage = true;
     }
     private void FixedUpdate()
     {
-        if (Input.GetButton("Telecinesia"))
+        SwitchFlutuar();
+        print("flutuar= " + flutuar);
+        if (telecinesia)
         {
+            telecinesia = false;
             if (range)
-            { 
+            {
+                range = false;
                 srCaixa.color = new Color(255, 120, 64);
                 rbCaixa.AddForce(horizontalMove * telecinese, ForceMode2D.Force);
                 if (gameObject.CompareTag("caixaLeve"))
@@ -42,20 +54,16 @@ public class PullBox : MonoBehaviour
                         rbCaixa.AddForce(Vector3.up * telecinese, ForceMode2D.Force);
                 }
                 Debug.Log("PIPOCA");
-                if (Input.GetButtonDown("interage"))
+                if (flutuar == true)
                 {
                     rbCaixa.isKinematic = true;
                     rbCaixa.velocity *= 0;
+                }else if(flutuar == false)
+                {
+                    rbCaixa.isKinematic = false;
                 }
-               
             }
         }
-        if (Input.GetButtonUp("interage"))
-        {
-            rbCaixa.isKinematic = false;
-        }
-
-
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -74,6 +82,7 @@ public class PullBox : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             range = true;
+            
             //for na posição i é igual ao objeto que colidiu
 
         }
@@ -83,5 +92,13 @@ public class PullBox : MonoBehaviour
         range = false;
         rbCaixa.isKinematic = false;
         // srCaixa.color = new Color(255, 255, 255);for na posição i é igual a null
+    }
+    void SwitchFlutuar()
+    {
+        if (interage)
+        {
+            interage = false;
+            flutuar = !flutuar;
+        }    
     }
 }
