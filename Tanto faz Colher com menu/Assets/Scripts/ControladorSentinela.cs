@@ -16,13 +16,15 @@ public class ControladorSentinela : MonoBehaviour
     public Transform groundDetection;     //empty que serve de sensor de plataforma
 
     private Vector2 horizontalMove;    //pra fazer a velocidade dele
-    private float speed = 2;
+    public float speed = 1;
     
     private bool isFacingRight;
     
     private bool playerInRange;   //se colidir com o trigger do player, fica true
     RaycastHit2D hitInfo;
     public GameObject explosao;
+    private Vector2 posiçãoI;
+    private string estado;
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +32,8 @@ public class ControladorSentinela : MonoBehaviour
         rbRobo = GetComponent<Rigidbody2D>();
         playerInRange = false;  // vai ficar true se ele entrar na range do collider trigger do player
         player = GameObject.FindGameObjectWithTag("Player");
+        posiçãoI = transform.position;
+        estado = "patrol";
     }
 
     // Update is called once per frame
@@ -38,7 +42,7 @@ public class ControladorSentinela : MonoBehaviour
         
         //vai checar se ele não vai cair da borda da plataforma e virar ele quando ele chegar nela
         hitInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, comprimentoRay);
-        print(hitInfo.distance);
+
         /* distPlataforma = hitInfo.distance;
          if(distPlataforma < 2)
          {
@@ -76,14 +80,15 @@ public class ControladorSentinela : MonoBehaviour
         if (!playerInRange)
         {
             //faz um patrol pelas plataformas de boas
-            transform.Translate(Vector2.right * Time.deltaTime * speed);
+            transform.Translate(Vector2.right * speed);
         }
         else
         {
    
          //ataca o player
          print("ALA ELE!");
-         transform.position = Vector3.MoveTowards(transform.position, player.transform.position, followDist * Time.deltaTime);
+
+         //transform.position = Vector3.MoveTowards(transform.position, new Vector3(player.transform.position.x, transform.position.y), followDist* Time.deltaTime);
            
              
         }
@@ -92,8 +97,8 @@ public class ControladorSentinela : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Flip();
-        Destroy(gameObject);
-        Instantiate(explosao ,rbRobo.position, transform.rotation);
+        //Destroy(gameObject);
+        //Instantiate(explosao ,rbRobo.position, transform.rotation);
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
@@ -105,6 +110,7 @@ public class ControladorSentinela : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         playerInRange = false;
+        estado = "ataque";
     }
     void Flip()
     {
