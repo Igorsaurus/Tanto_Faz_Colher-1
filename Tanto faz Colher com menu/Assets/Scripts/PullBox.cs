@@ -6,7 +6,7 @@ public class PullBox : MonoBehaviour
 {
     public Rigidbody2D rbCaixa;
     public SpriteRenderer srCaixa;
-    private PlayerMovement playerMovementScript;
+    //private PlayerMovement playerMovementScript;
     float playerSpeed = 0;
     public float telecinese = 500;
     PlayerMovement player;
@@ -16,6 +16,8 @@ public class PullBox : MonoBehaviour
     bool telecinesia;
     bool interage;
     bool flutuar;
+    private Vector2 posInicial;
+    public GerenciadorDeFase GerenciadorDeFase;
 
     // Start is called before the first frame update
     void Start()
@@ -25,11 +27,19 @@ public class PullBox : MonoBehaviour
         telecinesia = false;
         interage = false;
         flutuar = false;
+        posInicial = transform.position;
+        GerenciadorDeFase = FindObjectOfType<GerenciadorDeFase>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(transform.position.y < -15 || GerenciadorDeFase.respawn == true)
+        {
+            flutuar = false;
+            transform.position = posInicial;
+        }
+        
         horizontalInput = Input.GetAxisRaw("HorizontalArrow");
         horizontalMove = new Vector2(horizontalInput, 0);
         if(Input.GetButton("Telecinesia")) telecinesia = true;
@@ -79,7 +89,7 @@ public class PullBox : MonoBehaviour
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.name == "AreaTelecinese")
         {
             range = true;
             

@@ -39,11 +39,12 @@ public class PlayerMovement : MonoBehaviour
     [System.Serializable]
     public class BoolEvent : UnityEvent<bool> { }
 
-    public BoolEvent OnCrouchEvent;
+    //public BoolEvent OnCrouchEvent;
     private bool isCrouching;
     bool jump;
     bool usandoTelecinesia;
     bool crouch;
+    public GerenciadorDeFase GerenciadorDeFase;
 
     private void Start()
     {
@@ -53,9 +54,14 @@ public class PlayerMovement : MonoBehaviour
         jump = false;
         usandoTelecinesia = false;
         crouch = false;
+        GerenciadorDeFase = FindObjectOfType<GerenciadorDeFase>();
     }
     private void FixedUpdate()
     {
+        if(transform.position.y < -15)
+        {
+            GerenciadorDeFase.RespawnPlayer();
+        }
         
         print(jump);
 
@@ -100,7 +106,7 @@ public class PlayerMovement : MonoBehaviour
                 }
                 if (isCrouching)
                 {
-
+                    animator.SetBool("IsCrouching", true);
                     rb.velocity *= crouchSpeed;
                     if (crouchDisableCollider != null)
                     {
@@ -114,6 +120,7 @@ public class PlayerMovement : MonoBehaviour
                 }
                 else
                 {
+                    animator.SetBool("IsCrouching", false);
                     if (crouchDisableCollider != null)
                     {
                         crouchDisableCollider.enabled = true;
@@ -160,9 +167,9 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("IsJumping", false);
     }
-    public void OnCrouching(bool isCrouching)
-    {
-        animator.SetBool("IsCrouching", isCrouching);
-    }
+    //public void OnCrouching()
+    //{
+       // animator.SetBool("IsCrouching", true);
+    //}
   
 }
