@@ -6,6 +6,8 @@ using UnityEngine.Events;
 public class PlayerMovement : MonoBehaviour
 {
     public Animator animator;
+    
+    public BoxCollider2D triggerDist;
     //variables
     public Rigidbody2D rb;
     //basic movement vars
@@ -26,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform feetPos;
     [SerializeField] private Transform ceilingCheck;
     const float groundCheckRadius = .5f;    //radius of the overlap circle that checks if the player is on ground
-    const float ceilingCheckRadius = .4f;   //radius of the overlap circle that checks if the player can stand up
+    const float ceilingCheckRadius = .5f;   //radius of the overlap circle that checks if the player can stand up
     [SerializeField] private LayerMask whatIsGround;
 
     [Header("Events")]
@@ -37,80 +39,118 @@ public class PlayerMovement : MonoBehaviour
     [System.Serializable]
     public class BoolEvent : UnityEvent<bool> { }
 
-    public BoolEvent OnCrouchEvent;
-    private bool isCrouching = false;
+    //public BoolEvent OnCrouchEvent;
+    private bool isCrouching;
+    bool jump;
+    bool usandoTelecinesia;
+    bool crouch;
+    public GerenciadorDeFase GerenciadorDeFase;
 
-
-    private void Awake()
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();  //makes reference to the rb component in the editor
+        triggerDist = GetComponent<BoxCollider2D>();
+        isCrouching = false;
+        jump = false;
+        usandoTelecinesia = false;
+        crouch = false;
+        GerenciadorDeFase = FindObjectOfType<GerenciadorDeFase>();
+    }
+    private void FixedUpdate()
+    {
+        if(transform.position.y < -15)
+        {
+            GerenciadorDeFase.RespawnPlayer();
+        }
+        
+        print(jump);
+
+        if (usandoTelecinesia)
+        {
+          usandoTelecinesia = false;
+          if (isGrounded)
+          {
+                isGrounded = false;
+             rb.velocity = Vector2.zero;
+             animator.SetFloat("Speed", 0);
+          }
+        }
+        else
+        {
+            rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
+            animator.SetFloat("Speed", Mathf.Abs(moveInput));
+            Flip();
+            if (isGrounded)
+            {
+                //print("CACHORRO");
+                isGrounded = false;
+                OnLandEvent.Invoke();
+                animator.SetBool("IsJumping", false);
+
+
+                if (jump)
+                {
+                    jump = false;
+                    rb.velocity = Vector2.up * jumpForce;
+                    isGrounded = false;
+
+                }
+                if (crouch)
+                {
+                    crouch = false;
+                    isCrouching = true;
+                }
+                else
+                {
+                    isCrouching = false;
+                }
+                if (isCrouching)
+                {
+                    animator.SetBool("IsCrouching", true);
+                    rb.velocity *= crouchSpeed;
+                    if (crouchDisableCollider != null)
+                    {
+                        crouchDisableCollider.enabled = false;
+                    }
+                }
+                else if (Physics2D.OverlapCircle(ceilingCheck.position, ceilingCheckRadius, whatIsGround))
+                {
+                    Debug.Log("BATATA");
+                    isCrouching = true;
+                }
+                else
+                {
+                    animator.SetBool("IsCrouching", false);
+                    if (crouchDisableCollider != null)
+                    {
+                        crouchDisableCollider.enabled = true;
+                    }
+                }
+            }
+            else
+            {
+                animator.SetBool("IsJumping", true);
+            }
+        }
+        
     }
     private void Update()
     {
         moveInput = Input.GetAxisRaw("Horizontal");   //gets and store the input value
         isGrounded = Physics2D.OverlapCircle(feetPos.position, groundCheckRadius, whatIsGround); //checks if the player is on ground
-        
+        if(Input.GetButtonDown("Jump")) jump = true;
+        if(Input.GetButton("Telecinesia")) usandoTelecinesia = true;
+       if(Input.GetButton("Crouch"))
+            crouch = true;
+        isCrouching = true;
 
-        
-        if (isGrounded == true && Input.GetKeyDown(KeyCode.Space) && isCrouching == false)
-        {
-
-            rb.velocity = Vector2.up * jumpForce;
-            animator.SetBool("IsJumping", true);
-            isGrounded = false;
-        }
-        if (isGrounded && rb.velocity.y ==0)
-        {
-            OnLandEvent.Invoke();
-        }
     }
 
-    private void FixedUpdate()
+    
+    private void OnDrawGizmos()
     {
-          
-        rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
-        animator.SetFloat("Speed", Mathf.Abs(moveInput));
-
-        if (Input.GetKey(KeyCode.LeftShift) && isGrounded)
-        {
-
-            isCrouching = true;
-        }
-        else
-        {
-            isCrouching = false;
-        }
-        if (isCrouching)
-        {
-
-            rb.velocity *= crouchSpeed;
-            if (crouchDisableCollider != null)
-            {
-                crouchDisableCollider.enabled = false;
-            }
-        }
-        else if(Physics2D.OverlapCircle(ceilingCheck.position, ceilingCheckRadius, whatIsGround))
-        {
-            Debug.Log("BATATA");
-            isCrouching = true;
-        }else
-        {
-            if (crouchDisableCollider != null)
-            {
-                crouchDisableCollider.enabled = true;
-            }
-        }
-
-     
-        
-        
-        Flip(); //just flips the player depending on his direction
-
-        
-
-
-
-
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(triggerDist.bounds.center, triggerDist.bounds.size);
     }
     void Flip()
     {
@@ -127,9 +167,9 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("IsJumping", false);
     }
-    public void OnCrouching(bool isCrouching)
-    {
-        animator.SetBool("IsCrouching", isCrouching);
-    }
+    //public void OnCrouching()
+    //{
+       // animator.SetBool("IsCrouching", true);
+    //}
   
 }

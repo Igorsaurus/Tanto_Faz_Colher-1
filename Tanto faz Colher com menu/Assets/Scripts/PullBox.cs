@@ -6,46 +6,74 @@ public class PullBox : MonoBehaviour
 {
     public Rigidbody2D rbCaixa;
     public SpriteRenderer srCaixa;
-    private PlayerMovement playerMovementScript;
+    //private PlayerMovement playerMovementScript;
     float playerSpeed = 0;
     public float telecinese = 500;
     PlayerMovement player;
     public float horizontalInput;
     private Vector2 horizontalMove;
     private bool range;
+    bool telecinesia;
+    bool interage;
+    bool flutuar;
+    private Vector2 posInicial;
+    public GerenciadorDeFase GerenciadorDeFase;
 
     // Start is called before the first frame update
     void Start()
     {
         //playerSpeed = playerMovementScript.rb.velocity.x;
         range = false;
+        telecinesia = false;
+        interage = false;
+        flutuar = false;
+        posInicial = transform.position;
+        GerenciadorDeFase = FindObjectOfType<GerenciadorDeFase>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(transform.position.y < -15 || GerenciadorDeFase.respawn == true)
+        {
+            flutuar = false;
+            transform.position = posInicial;
+        }
+        
         horizontalInput = Input.GetAxisRaw("HorizontalArrow");
         horizontalMove = new Vector2(horizontalInput, 0);
+        if(Input.GetButton("Telecinesia")) telecinesia = true;
+        if (Input.GetButtonDown("interage")) interage = true;
     }
     private void FixedUpdate()
     {
-        if (Input.GetKey(KeyCode.RightControl))
+        SwitchFlutuar();
+        print("flutuar= " + flutuar);
+        if (telecinesia)
         {
+            telecinesia = false;
             if (range)
             {
+                range = false;
                 srCaixa.color = new Color(255, 120, 64);
                 rbCaixa.AddForce(horizontalMove * telecinese, ForceMode2D.Force);
                 if (gameObject.CompareTag("caixaLeve"))
                 {
+                    rbCaixa.AddForce(Vector2.up* 2, ForceMode2D.Impulse);
                     if (Input.GetKey(KeyCode.UpArrow))
                         rbCaixa.AddForce(Vector3.up * telecinese, ForceMode2D.Force);
                 }
                 Debug.Log("PIPOCA");
-               
+                if (flutuar == true)
+                {
+                    rbCaixa.isKinematic = true;
+                    rbCaixa.velocity *= 0;
+                }else if(flutuar == false)
+                {
+                    rbCaixa.isKinematic = false;
+                }
             }
         }
-        
-        
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -61,9 +89,10 @@ public class PullBox : MonoBehaviour
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.name == "AreaTelecinese")
         {
             range = true;
+            
             //for na posição i é igual ao objeto que colidiu
 
         }
@@ -71,6 +100,15 @@ public class PullBox : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         range = false;
-       // srCaixa.color = new Color(255, 255, 255);for na posição i é igaul a null
+        rbCaixa.isKinematic = false;
+        // srCaixa.color = new Color(255, 255, 255);for na posição i é igual a null
+    }
+    void SwitchFlutuar()
+    {
+        if (interage)
+        {
+            interage = false;
+            flutuar = !flutuar;
+        }    
     }
 }
