@@ -27,9 +27,13 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded = true;
     [SerializeField] private Transform feetPos;
     [SerializeField] private Transform ceilingCheck;
-    const float groundCheckRadius = .5f;    //radius of the overlap circle that checks if the player is on ground
+    public float groundCheckRadius = .5f;    //radius of the overlap circle that checks if the player is on ground
     const float ceilingCheckRadius = .5f;   //radius of the overlap circle that checks if the player can stand up
     [SerializeField] private LayerMask whatIsGround;
+    public float hangTime = .3f;
+    [SerializeField] private float hangTimeCounter;
+    public float jumpBufferLenght = .1f;
+    private float jumpBufferCounter;
 
     [Header("Events")]
     [Space]
@@ -81,21 +85,32 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
             animator.SetFloat("Speed", Mathf.Abs(moveInput));
             Flip();
+            if (jump)
+            {
+                jumpBufferCounter = jumpBufferLenght;
+            }
+            else
+            {
+                jumpBufferCounter -= Time.deltaTime;
+            }
+            if (jumpBufferCounter >=0 && hangTimeCounter > 0)
+            {
+                jump = false;
+                jumpBufferCounter = 0;
+                rb.velocity = new Vector2(rb.velocity.x, 0);
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                isGrounded = false;
+
+            }
             if (isGrounded)
             {
                 //print("CACHORRO");
                 isGrounded = false;
                 OnLandEvent.Invoke();
                 animator.SetBool("IsJumping", false);
+                hangTimeCounter = hangTime;
 
-
-                if (jump)
-                {
-                    jump = false;
-                    rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-                    isGrounded = false;
-                    
-                }
+                
                 
                 if (crouch)
                 {
@@ -132,6 +147,7 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 animator.SetBool("IsJumping", true);
+                hangTimeCounter -= Time.deltaTime;
             }
         }
         
