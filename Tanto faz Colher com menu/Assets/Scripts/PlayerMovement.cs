@@ -62,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        print(isGrounded);
+        print("isGrounded =" + isGrounded);
         if(transform.position.y < -15)
         {
             GerenciadorDeFase.RespawnPlayer();

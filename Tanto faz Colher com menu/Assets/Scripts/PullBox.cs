@@ -7,9 +7,12 @@ public class PullBox : MonoBehaviour
     public Rigidbody2D rbCaixa;
     public SpriteRenderer srCaixa;
     //private PlayerMovement playerMovementScript;
-    float playerSpeed = 0;
+    //float playerSpeed = 0;
+
     public float telecinese = 500;
-    PlayerMovement player;
+
+    //PlayerMovement player;
+
     public float horizontalInput;
     private Vector2 horizontalMove;
     private bool range;
@@ -55,6 +58,7 @@ public class PullBox : MonoBehaviour
             telecinesia = false;
             if (range)
             {
+                print("ALELUIA");
                 range = false;
                 srCaixa.color = new Color(255, 120, 64);
                 rbCaixa.AddForce(horizontalMove * telecinese, ForceMode2D.Force);
