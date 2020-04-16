@@ -58,12 +58,13 @@ public class PlayerMovement : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        print(isGrounded);
         if(transform.position.y < -15)
         {
             GerenciadorDeFase.RespawnPlayer();
         }
         
-        print(jump);
+       // print(jump);
 
         if (usandoTelecinesia)
         {
@@ -91,10 +92,11 @@ public class PlayerMovement : MonoBehaviour
                 if (jump)
                 {
                     jump = false;
-                    rb.velocity = Vector2.up * jumpForce;
+                    rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                     isGrounded = false;
-
+                    
                 }
+                
                 if (crouch)
                 {
                     crouch = false;
@@ -139,6 +141,7 @@ public class PlayerMovement : MonoBehaviour
         moveInput = Input.GetAxisRaw("Horizontal");   //gets and store the input value
         isGrounded = Physics2D.OverlapCircle(feetPos.position, groundCheckRadius, whatIsGround); //checks if the player is on ground
         if(Input.GetButtonDown("Jump")) jump = true;
+         
         if(Input.GetButton("Telecinesia")) usandoTelecinesia = true;
        if(Input.GetButton("Crouch"))
             crouch = true;

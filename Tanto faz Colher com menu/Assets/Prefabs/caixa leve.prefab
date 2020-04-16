@@ -147,3 +147,5 @@ MonoBehaviour:
   srCaixa: {fileID: 6370464381071691393}
   telecinese: 100
   horizontalInput: 0
+  flutuar: 0
+  GerenciadorDeFase: {fileID: 0}

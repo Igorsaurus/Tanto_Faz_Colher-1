@@ -5,6 +5,7 @@ using UnityEngine;
 public class JogadorDialoga : MonoBehaviour
 {
     public bool EstaInteragindo { get; set; }
+
     // Update is called once per frame
     void Update()
     {
@@ -15,6 +16,7 @@ public class JogadorDialoga : MonoBehaviour
         else
         {
             EstaInteragindo = false;
+
         }
         
     }

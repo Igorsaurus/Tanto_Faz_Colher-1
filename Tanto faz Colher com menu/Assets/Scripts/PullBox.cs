@@ -15,7 +15,7 @@ public class PullBox : MonoBehaviour
     private bool range;
     bool telecinesia;
     bool interage;
-    bool flutuar;
+    public bool flutuar;
     private Vector2 posInicial;
     public GerenciadorDeFase GerenciadorDeFase;
 
@@ -37,18 +37,19 @@ public class PullBox : MonoBehaviour
         if(transform.position.y < -15 || GerenciadorDeFase.respawn == true)
         {
             flutuar = false;
-            transform.position = posInicial;
+            transform.position = posInicial;                                    //reseta a caixa no mapa
         }
         
         horizontalInput = Input.GetAxisRaw("HorizontalArrow");
         horizontalMove = new Vector2(horizontalInput, 0);
         if(Input.GetButton("Telecinesia")) telecinesia = true;
         if (Input.GetButtonDown("interage")) interage = true;
+        SwitchFlutuar();
     }
     private void FixedUpdate()
     {
-        SwitchFlutuar();
-        print("flutuar= " + flutuar);
+        
+        //print("flutuar= " + flutuar);
         if (telecinesia)
         {
             telecinesia = false;
@@ -108,7 +109,10 @@ public class PullBox : MonoBehaviour
         if (interage)
         {
             interage = false;
-            flutuar = !flutuar;
-        }    
+            if (range && telecinesia)
+            {
+                flutuar = !flutuar;
+            }
+        }
     }
 }
